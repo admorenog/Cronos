@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  supervisor:
+    build: .
+    container_name: cronos
+    image: cronos
+    network_mode: bridge
+    ports:
+      - 8000:8000
+      - 9229:9229
+    volumes:
+      - ../:/cronos
+      - ../storage/logs/:/var/log/cronos
+      - ./supervisord.debug.conf:/etc/supervisord.conf

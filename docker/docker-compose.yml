@@ -1,0 +1,12 @@
+version: "3.7"
+
+services:
+  cronos:
+    build: .
+    network_mode: bridge
+    ports:
+      - 8000:8000
+    volumes:
+      - ../:/cronos
+      - ../storage/logs/:/var/log/cronos
+      - ./supervisord.conf:/etc/supervisord.conf

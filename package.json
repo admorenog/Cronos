@@ -1,0 +1,41 @@
+{
+  "name": "cronos",
+  "version": "0.0.1",
+  "description": "Manage automatized tasks using the crontab",
+  "main": "app.js",
+  "scripts": {
+    "serve_dev": "docker-compose -f docker/docker-compose.debug.yml up",
+    "serve": "docker-compose -f docker/docker-compose.yml up"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect-busboy": "latest",
+    "cors": "^2.8.5",
+    "cron": "^1.8.2",
+    "cron-parser": "^3.3.0",
+    "express": "latest",
+    "express-basic-auth": "^1.2.0",
+    "mime-types": "^2.1.30",
+    "moment": "^2.29.1",
+    "nedb": "latest",
+    "nodemailer": "^6.5.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.13.14",
+    "@babel/core": "^7.13.14",
+    "@babel/node": "^7.13.13",
+    "@babel/preset-env": "^7.13.12",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "nodemon": "^2.0.7"
+  },
+  "engines": {
+    "node": "latest"
+  },
+  "type": "module",
+  "keywords": [
+    "Crontab",
+    "node"
+  ],
+  "author": "Adrián Moreno García",
+  "license": "MIT"
+}

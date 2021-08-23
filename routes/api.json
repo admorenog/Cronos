@@ -1,0 +1,964 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Cronos",
+    "description": "Cronos api",
+    "contact": {
+      "email": "garciamorenoadrian@gmail.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://en.wikipedia.org/wiki/MIT_License"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "paths": {
+    "/jobs": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get a list of jobs",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "JobController@list",
+        "responses": {
+          "200": {
+            "description": "A list of jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "read:jobs"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Add a new job",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "JobController@store",
+        "requestBody": {
+          "description": "Job object that needs to be added",
+          "content": {
+          },
+          "required": true
+        },
+        "responses": {
+          "405": {
+            "description": "Invalid input",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/jobs/{jobId}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Find job by ID",
+        "description": "Returns a single job",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "JobController@show",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "ID of job to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "Job not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Updates a job with form data",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "JobController@update",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "ID of job that needs to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Updated name of the job"
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Updated status of the job"
+                  }
+                },
+                "example" : {
+                  "command": "echo \"/etc/periodic/15min\"",
+                  "cronos_id": null,
+                  "hooks": "[object Object]",
+                  "logging": "false",
+                  "mailing": "{\"transporter\":{\"host\":\"smtp.gmail.com\",\"port\":\"465\",\"secure\":\"true\",\"auth\":{\"user\":\"adrianmorenogarcia@gmail.com\",\"pass\":\"******\"}},\"mailOptions\":{\"from\":\"\\\"${ hostname.toUpperCase() } 🖥\\\" <adrianmorenogarcia@gmail.com>\",\"to\":\"adrianmorenogarcia@gmail.com\",\"subject\":\"Cron ${ job.name } Executed ${ job.output.exitCode==0?\\\"🙌\\\":\\\"🤬❗️\\\" }\",\"text\":\"${ job.name } ${ job.output.exitCode==0?\\\"everything ok\\\":\\\"something went wrong\\\" }\",\"html\":\"<b>${ job.name } 🐴</b> ${ job.output.exitCode==0?\\\"🟢\\\":\\\"🔴\\\" }\",\"template\":\"results.html\",\"attach_error\":\"true\",\"attach_output\":\"true\"}}",
+                  "name": "periodic",
+                  "output": {},
+                  "saved": "false",
+                  "schedule": "* * * * *",
+                  "timestamp": null,
+                  "updated_at": "Mon May 31 2021 05:14:24 GMT+0000 (Coordinated Universal Time)"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "405": {
+            "description": "Invalid input",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:job",
+              "read:job"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Deletes a job",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "JobController@delete",
+        "parameters": [
+          {
+            "name": "api_key",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "Job id to delete",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "Job not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ]
+      }
+    },
+    "/jobs/{jobId}/run": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Execute the current job",
+        "description": "If the current job is already executing this will be cancelled",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "JobController@run",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "ID of job to run",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "url of logs",
+                  "example": "http://localhost/8000/logs/43"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "404": {
+            "description": "Job not found",
+            "content": {}
+          },
+          "409": {
+            "description": "Job already executing",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ]
+      }
+    },
+    "/jobs/{jobId}/enable": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Enable the current job",
+        "description": "Enable the job in the crontab",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "JobController@enable",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "ID of job to run",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "404": {
+            "description": "Job not found",
+            "content": {}
+          },
+          "409": {
+            "description": "Job already executing",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ]
+      }
+    },
+    "/jobs/{jobId}/disable": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Disable the current job",
+        "description": "Disable the job in the crontab",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "JobController@disable",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "ID of job to run",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+            }
+          },
+          "400": {
+            "description": "Invalid status value",
+            "content": {}
+          },
+          "404": {
+            "description": "Job not found",
+            "content": {}
+          },
+          "409": {
+            "description": "Job already executing",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ]
+      }
+    },
+    "/logs/jobs": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Get a list of logs",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "LogController@list",
+        "responses": {
+          "200": {
+            "description": "A list of logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Log"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "read:jobs"
+            ]
+          }
+        ]
+      }
+    },
+    "/logs/jobs/{jobId}": {
+      "get": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Find logs by job ID",
+        "description": "Returns the logs of a job",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "LogController@list",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "ID of job to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Log"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "Job not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "logs"
+        ],
+        "summary": "Deletes a log",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "LogController@delete",
+        "parameters": [
+          {
+            "name": "api_key",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "Job id to delete logs",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "Job not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ]
+      }
+    },
+    "/env": {
+      "get": {
+        "tags": [
+          "env"
+        ],
+        "summary": "Get a list of env",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "EnvController@index",
+        "responses": {
+          "200": {
+            "description": "A list of envs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "read:jobs"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "env"
+        ],
+        "summary": "Add a new env",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "EnvController@store",
+        "requestBody": {
+          "description": "Job object that needs to be added",
+          "content": {
+          },
+          "required": true
+        },
+        "responses": {
+          "405": {
+            "description": "Invalid input",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/smtp-config": {
+      "get": {
+        "tags": [
+          "smtp"
+        ],
+        "summary": "Get a list of smtp configurations.",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "SmtpConfigController@index",
+        "responses": {
+          "200": {
+            "description": "A list of smtp configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SmtpConfig"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "read:jobs"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "smtp"
+        ],
+        "summary": "Add a new smtp configuration",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "SmtpConfigController@store",
+        "requestBody": {
+          "description": "Smtp config to save",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SmtpConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "405": {
+            "description": "Invalid input",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/smtp-config/{idSmtpConfig}": {
+      "put": {
+        "tags": [
+          "smtp"
+        ],
+        "summary": "Updates a smtp by id",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "SmtpConfigController@update",
+        "parameters": [
+          {
+            "name": "idSmtpConfig",
+            "in": "path",
+            "description": "ID of smtp that needs to be updated",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Smtp config to save",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SmtpConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "405": {
+            "description": "Invalid input",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ],
+        "x-codegen-request-body-name": "body"
+      },
+      "delete": {
+        "tags": [
+          "smtp"
+        ],
+        "summary": "Deletes a smtp",
+        "x-middlewares": ["ApiJsonMiddleware"],
+        "x-controller": "SmtpConfigController@delete",
+        "parameters": [
+          {
+            "name": "idSmtpConfig",
+            "in": "path",
+            "description": "Smtp config id to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID supplied",
+            "content": {}
+          },
+          "404": {
+            "description": "Smtp not found",
+            "content": {}
+          }
+        },
+        "security": [
+          {
+            "cronos_auth": [
+              "write:jobs",
+              "read:jobs"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Job": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string",
+            "example": "checkforupdates"
+          },
+          "command": {
+            "type": "string",
+            "example": "checkupdates.sh"
+          },
+          "schedule": {
+            "type": "string",
+            "example": "* * * * *"
+          },
+          "logging": {
+            "type": "boolean",
+            "example": true
+          },
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "hooks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Hook"
+            }
+          },
+          "mailing": {
+            "$ref": "#/components/schemas/MailConfig"
+          }
+        }
+      },
+      "Log": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string",
+            "example": "checkforupdates"
+          },
+          "command": {
+            "type": "string",
+            "example": "checkupdates.sh"
+          },
+          "schedule": {
+            "type": "string",
+            "example": "* * * * *"
+          },
+          "logging": {
+            "type": "boolean",
+            "example": true
+          },
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "hooks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Hook"
+            }
+          },
+          "mailing": {
+            "$ref": "#/components/schemas/MailConfig"
+          }
+        }
+      },
+      "Hook": {
+        "type": "object",
+        "properties" : {
+          "name": {
+            "type": "string",
+            "pattern": "^\\w$",
+            "example": "checkforupdates"
+          },
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "command": {
+            "type": "string",
+            "example": "curl http://localhost:8000/ready"
+          }
+        }
+      },
+      "MailConfig": {
+        "type": "object",
+        "properties" : {
+          "mailOptions": {
+            "$ref": "#/components/schemas/MailOptions"
+          },
+          "transporter": {
+            "$ref": "#/components/schemas/SmtpConfig"
+          }
+        }
+      },
+      "MailOptions": {
+        "type": "object",
+        "properties" : {
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          },
+          "attach_error" : {
+            "type": "boolean",
+            "example": true
+          },
+          "attach_output": {
+            "type": "boolean",
+            "example": true
+          },
+          "from": {
+            "type": "string",
+            "example": "jimmy@example.com"
+          },
+          "html": {
+            "type": "string",
+            "example": "<h1>Executed successfully</h1>"
+          },
+          "subject": {
+            "type": "string",
+            "example": "Cron Executed"
+          },
+          "template": {
+            "type": "string",
+            "example": "result.html"
+          },
+          "text": {
+            "type": "string",
+            "example": "Executed successfully"
+          },
+          "to": {
+            "type": "string",
+            "example": "jimmy@example.com"
+          }
+        }
+      },
+      "SmtpConfig": {
+        "type": "object",
+        "properties" : {
+          "id": {
+            "type": "number",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^.{4,30}$",
+            "example": "Machine account",
+            "description": "Name of the smtp",
+            "x-alias": "Name",
+            "x-validation": "Name should be longer than 4 and less than 30 chars"
+          },
+          "host": {
+            "type": "string",
+            "pattern": "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$",
+            "example": "gmail",
+            "description": "Host name",
+            "x-alias": "Host",
+            "x-validation": "Host must have the structure of RFC1123"
+          },
+          "port": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 65353,
+            "example": 465
+          },
+          "secure" : {
+            "type": "boolean",
+            "example": true
+          },
+          "auth" : {
+            "type": "object",
+            "properties": {
+              "user" : {
+                "type": "string",
+                "pattern": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
+                "example": "jimmy@asda.com"
+              },
+              "pass" : {
+                "type": "string",
+                "format": "password",
+                "example": "123456",
+                "writeOnly": true
+              }
+            }
+          }
+        },
+        "required" : [
+          "name",
+          "host",
+          "port"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "cronos_auth": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "http://localhost:8000/oauth",
+            "scopes": {
+              "write:jobs": "modify jobs",
+              "read:jobs": "read jobs",
+              "write:envs": "modify envs",
+              "read:envs": "read envs"
+            }
+          }
+        }
+      },
+      "api_key": {
+        "type": "apiKey",
+        "name": "api_key",
+        "in": "header"
+      }
+    }
+  }
+}

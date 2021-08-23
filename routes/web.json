@@ -1,0 +1,39 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Cronos",
+    "description": "Cronos api",
+    "contact": {
+      "email": "garciamorenoadrian@gmail.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://en.wikipedia.org/wiki/MIT_License"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:8000"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "cronos"
+        ],
+        "summary": "Get the main view",
+        "x-middleware": ["ApiJsonMiddleware"],
+        "x-controller": "CronosController@index",
+        "responses": {
+          "200": {
+            "description": "The main view",
+            "content": {
+            }
+          }
+        }
+      }
+    }
+  }
+}

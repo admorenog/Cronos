@@ -1,0 +1,24 @@
+{
+	"env": {
+        "development": {
+            "sourceMaps": "inline"
+		}
+	},
+	"presets": [
+		"@babel/preset-env"
+	],
+	"plugins": [
+		[
+			"module-resolver",
+			{
+				"alias": {
+					"$models": "./app/models",
+					"$helpers": "./app/helpers",
+					"$controllers": "./app/controllers",
+					"$logs": "./storage/logs",
+					"$db": "./storage/db"
+				}
+			}
+		]
+	]
+}

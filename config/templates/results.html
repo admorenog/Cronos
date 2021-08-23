@@ -1,0 +1,3 @@
+<b>${ job.name }</b> ${ job.output.exitCode==0?"🟢":"🔴" }
+<pre>${ job.command }</pre>
+${ job.output.exitCode==0?"executed successfully, output attached":"executed with errors, stderr attached" }
