@@ -1,14 +1,21 @@
-#!/usr/bin/env node --inspect-brk=0.0.0.0:9230
+#!node_modules/.bin/babel-node
+//--inspect - brk=0.0.0.0: 9230
 import Job from '$models/Job';
 
+/**
+ * argv = [
+ * 0 => "process name"
+ * 1 => _id
+ * ]
+ */
 void async function main(argv)
 {
-    if (argv.length < 3)
+    if (argv.length < 2)
     {
-        return console.error(`Insufficient Arguments: ${process.argv.length}, 4 needed`);
+        return console.error(`Insufficient Arguments: ${argv.length}, 2 needed.`);
     }
 
-    let _id = argv[2];
+    let _id = argv[1];
     let job = await (new Job(_id)).get();
 
     await job.exec();
