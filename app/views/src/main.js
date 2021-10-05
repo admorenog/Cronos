@@ -4,7 +4,6 @@ import VuePageTitle from 'vue-page-title';
 import VueAxios from 'vue-axios';
 import vuetify from '@/plugins/vuetify';
 import App from '@/App.vue';
-require('@/lib/helpers');
 
 Vue.config.productionTip = false;
 

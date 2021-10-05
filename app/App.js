@@ -1,11 +1,11 @@
-const moment = require('moment');
-const mime = require('mime-types');
-const fs = require('fs');
-const express = require('express');
-const bodyParser = require('body-parser');
-const busboy = require('connect-busboy'); // for file upload
-const path = require('path');
-const basicAuth = require('express-basic-auth');
+import moment from 'moment';
+import mime from 'mime-types';
+import fs from 'fs';
+import express from 'express';
+import bodyParser from 'body-parser';
+import busboy from 'connect-busboy';
+import path from 'path';
+import basicAuth from 'express-basic-auth';
 import cors from 'cors';
 
 import paths from '$helpers/paths';
@@ -74,11 +74,10 @@ export default class App
     async loadPlugins()
     {
         this.app.use(cors());
-        this.app.use(bodyParser.json());       // to support JSON-encoded bodies
-        this.app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-            extended: true
-        }));
-        this.app.use(busboy()); // to support file uploads
+        this.app.use(bodyParser.json());
+        this.app.use(bodyParser.urlencoded({ extended: true }));
+        // to support file uploads
+        this.app.use(busboy());
 
         this.app.use(express.static(path.join(__dirname, "public")));
         this.app.use(express.static(path.join(__dirname, "config")));
@@ -122,23 +121,51 @@ export default class App
         let swaggerExtractor = new SwaggerExtractor();
         let routes = swaggerExtractor.getRoutes();
 
-        for (let path in routes)
+        for (let idxRoute in routes)
         {
-            let methods = swaggerExtractor.routes[path];
-            let middlewareFns = [];
-            for (let middlewareIdx in methods.middlewares)
+            let route = routes[idxRoute];
+            let middlewares = [];
+            for (let middlewareIdx in route.middlewares)
             {
-                let middleware = methods.middlewares[middlewareIdx];
+                let middleware = route.middlewares[middlewareIdx];
                 let middlewarefn = this.app.middlewares[middleware]["handle"];
-                middlewareFns.push(middlewarefn);
+                middlewares.push(middlewarefn);
             }
 
-            let controllerName = methods.controller.split("@")[0];
-            let fnName = methods.controller.split("@")[1];
+            let controllerName = route.controller.split("@")[0];
+            let fnName = route.controller.split("@")[1];
             let controllerFn = this.app.controllers[controllerName][fnName];
-            let pathAdapted = methods.path.replace(/\{(.*)\}/g, ":$1");
-            console.log({ method: methods.method, path: pathAdapted, middlewares: middlewareFns, controllerFn });
-            this.app[methods.method](pathAdapted, ...middlewareFns, controllerFn);
+            let path = route.path.replace(/\{(.*)\}/g, ":$1");
+            console.log({ method: route.method, path, middlewares, controllerFn });
+            this.app[route.method](path, ...middlewares, controllerFn);
+        }
+    }
+
+    async loadMocks()
+    {
+        let swaggerExtractor = new SwaggerExtractor();
+        let routes = swaggerExtractor.getRoutes();
+
+        for (let idxRoute in routes)
+        {
+            let route = routes[idxRoute];
+            let middlewares = [];
+            for (let idxMiddleware in route.middlewares)
+            {
+                let middleware = route.middlewares[idxMiddleware];
+                let middlewarefn = this.app.middlewares[middleware]["handle"];
+                middlewares.push(middlewarefn);
+            }
+
+            let example = {};
+            let controllerFn = function (request, response)
+            {
+                response.end(JSON.stringify(example));
+            };
+            let path = '/__mock' + route.path.replace(/\{(.*)\}/g, ":$1");
+            let method = route.method;
+            console.log({ method, path, middlewares, controllerFn });
+            this.app[method](path, ...middlewares, controllerFn);
         }
     }
 

@@ -46,7 +46,7 @@ export default class SwaggerExtractor
 
                     if (!this.isRouteAlreadyDefined(path, method))
                     {
-                        this.routes.push({ path, method, middlewares, controller });
+                        this.routes.push({ method, path, middlewares, controller });
                     }
                     else
                     {

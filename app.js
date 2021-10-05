@@ -14,9 +14,11 @@ void async function main()
 
     await app.loadControllers();
 
+    await app.loadComponentDefinitions();
+
     await app.loadRoutes();
 
-    await app.loadComponentDefinitions();
+    await app.loadMocks();
 
     app.listen();
 }();
