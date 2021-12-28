@@ -1,0 +1,42 @@
+{
+	"compileOnSave": false,
+	"compilerOptions": {
+		"outDir": "./dist",
+		"sourceMap": true,
+		"moduleResolution": "node",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"importHelpers": true,
+		"target": "es6",
+		"typeRoots": [
+			"node_modules/@types"
+		],
+		"include" : [
+			"./app"
+		]
+	},
+	"baseUrl": ".",
+	"paths": {
+		"$app/*": [
+			"app/*"
+		],
+		"$models*": [
+			"./app/models*"
+		],
+		"$controllers*": [
+			"./app/controllers*"
+		],
+		"$helpers*": [
+			"./app/helpers*"
+		],
+		"$core*": [
+			"./app/core*"
+		],
+		"$logs*": [
+			"./storage/logs*"
+		],
+		"$db*": [
+			"storage/db*"
+		]
+	},
+}
