@@ -1,4 +1,3 @@
-# docker run -d -p 8000:8000 alseambusher/crontab-ui
 FROM alpine:3.10
 
 ENV   HOST 0.0.0.0
