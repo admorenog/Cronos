@@ -6,10 +6,6 @@ export default class Paths
     {
         return path.dirname(require.main.filename);
     }
-    static storage()
-    {
-        return path.resolve(Paths.root(), "storage");
-    }
     static controllers()
     {
         return path.resolve(Paths.root(), "app/controllers");
@@ -17,6 +13,14 @@ export default class Paths
     static middlewares()
     {
         return path.resolve(Paths.root(), "app/middlewares");
+    }
+    static routes()
+    {
+        return path.resolve(Paths.root(), "routes");
+    }
+    static storage()
+    {
+        return path.resolve(Paths.root(), "storage");
     }
     static logs()
     {

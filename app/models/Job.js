@@ -2,7 +2,7 @@ import os from "os";
 import fs from "fs";
 import { exec } from 'child_process';
 
-import DbModel from '$helpers/DbModel';
+import DbModel from '$core/Model/DbModel';
 import Log from '$models/Log';
 import Mail from '$models/Mail';
 

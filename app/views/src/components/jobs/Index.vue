@@ -44,7 +44,7 @@
                       color="white"
                       v-bind="attrs"
                       v-on="on"
-                      @click="showLogsJob(row.index, row.item)">
+                      @click="showLogsJob(row.item)">
                         <v-icon dark>mdi-text-box-multiple</v-icon>
                     </v-btn>
                   </template>
@@ -122,12 +122,8 @@
         </v-data-table>
       </v-col>
       <EditJob/>
-      <AreYouSure event="showLogs">
-        <template #new>
-          <Logs v-if="currentJob" :job="currentJob" :index="currentJobIndex"></Logs>
-        </template>
-      </AreYouSure>
     </v-row>
+    <Logs></Logs>
   </div>
 </template>
 
@@ -135,14 +131,12 @@
   import { bus } from '@/App';
   import EditJob from '@c/jobs/Edit'
   import Logs from '@c/jobs/Logs'
-  import AreYouSure from '@c/modals/AreYouSure'
   import moment from 'moment';
   import cron from 'cron';
   export default {
     name: 'Index',
     components: {
       EditJob,
-      AreYouSure,
       Logs
     },
     data: () => ({
@@ -239,12 +233,8 @@
       newJob() {
         bus.$emit('editJob');
       },
-      showLogsJob(index, job) {
-        this.currentJobIndex = index;
-        this.currentJob = job;
-        bus.$emit('showLogs', "nameEvent",
-                              "Logs",
-                              "Ok");
+      showLogsJob(job) {
+        bus.$emit('showLogs', job);
       },
       playJob(index, job) {
         console.log(index, job);

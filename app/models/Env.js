@@ -1,4 +1,4 @@
-import DbModel from '$helpers/DbModel';
+import DbModel from '$core/Model/DbModel';
 
 export default class Env extends DbModel
 {

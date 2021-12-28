@@ -1,24 +1,17 @@
-import App from './app/App';
+import App from '$app/App';
+import helpers from '$helpers/common';
 
 void async function main()
 {
+    if (process.env.NODE_ENV == 'debug')
+    {
+        console.log("waiting the debugger");
+        await helpers.wait(2000);
+    }
+
     let app = new App();
 
-    await app.setConfig();
-
-    await app.setBasicAuth();
-
-    await app.loadPlugins();
-
-    await app.loadMiddlewares();
-
-    await app.loadControllers();
-
-    await app.loadComponentDefinitions();
-
-    await app.loadRoutes();
-
-    await app.loadMocks();
+    app.bootstrap();
 
     app.listen();
 }();

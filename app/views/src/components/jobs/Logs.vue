@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-dialog v-model="showLogs">
     <v-row class="text-center">
       <v-col cols="12">
         <v-data-table
@@ -8,16 +8,6 @@
           :items-per-page="15"
           class="elevation-1"
           >
-          <template v-slot:[`header.actions`]>
-            <v-btn
-              color="accent"
-              class="float-right pa-2"
-              tile
-              @click="newJob"
-              >
-              <v-icon>mdi-plus-thick</v-icon>new Job
-            </v-btn>
-          </template>
           <template v-slot:item="row">
             <tr>
               <td align="start">{{ row.item.name }}</td>
@@ -42,7 +32,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-  </div>
+  </v-dialog>
 </template>
 
 <script>
@@ -58,6 +48,7 @@
       index: Number,
     },
     data: () => ({
+      showLogs: false,
       logs : [],
       logHeaders: [
         {
@@ -109,6 +100,11 @@
     },
     async created () {
       var vm = this;
+      bus.$on('showLogs', async function (job) {
+        let logs = await vm.getLogs(job);
+        vm.$set(vm.logs, logs);
+        vm.showLogs = true;
+      });
       bus.$on('saveJob', function (index, job) {
         if(!index) {
           index = vm.jobs.length;
@@ -118,9 +114,6 @@
       this.logs = await this.getLogs(vm.job);
     },
     methods: {
-      newJob() {
-        bus.$emit('editJob');
-      },
       showLogsJob(index, job) {
         console.log(index, job);
       },

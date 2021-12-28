@@ -1,7 +1,8 @@
 import path from 'path';
 import fs from 'fs';
+import Paths from '$helpers/Paths';
 
-export default class SwaggerExtractor
+export default class Extractor
 {
     constructor()
     {
@@ -11,9 +12,15 @@ export default class SwaggerExtractor
         this.loadSwaggers();
     }
 
+    getRoutes()
+    {
+        this.loadRoutesFromSwaggers();
+        return this.routes;
+    }
+
     loadSwaggers()
     {
-        let routesPath = path.join(__dirname, "../../routes");
+        let routesPath = Paths.routes();
         let swaggers = fs.readdirSync(routesPath);
 
         for (let idxSwagger in swaggers)
@@ -57,6 +64,20 @@ export default class SwaggerExtractor
         }
     }
 
+    getResponses(method)
+    {
+        let responses = {};
+        // let methodResponses = method.responses || {};
+        // for (let httpCode in methodResponses)
+        // {
+        //     let content = methodResponses[httpCode].content["application/json"].schema
+        //     responses[httpCode]
+        // }
+        console.log(method);
+
+        return responses;
+    }
+
     loadComponentsFromSwaggers()
     {
         for (let idxSwagger in this.swaggers)
@@ -80,12 +101,6 @@ export default class SwaggerExtractor
                 }
             }
         }
-    }
-
-    getRoutes()
-    {
-        this.loadRoutesFromSwaggers();
-        return this.routes;
     }
 
     getComponents()

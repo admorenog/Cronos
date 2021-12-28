@@ -12,9 +12,11 @@
 			"module-resolver",
 			{
 				"alias": {
+					"$app": "./app",
 					"$models": "./app/models",
-					"$helpers": "./app/helpers",
 					"$controllers": "./app/controllers",
+					"$helpers": "./app/helpers",
+					"$core": "./app/core",
 					"$logs": "./storage/logs",
 					"$db": "./storage/db"
 				}

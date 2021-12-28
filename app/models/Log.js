@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import paths from '$helpers/Paths';
-import DbModel from '$helpers/DbModel';
+import DbModel from '$core/Model/DbModel';
 
 export default class Log extends DbModel
 {

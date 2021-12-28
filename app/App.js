@@ -9,13 +9,36 @@ import basicAuth from 'express-basic-auth';
 import cors from 'cors';
 
 import paths from '$helpers/paths';
-import SwaggerExtractor from '$helpers/SwaggerExtractor';
+import SwaggerExtractor from '$core/Swagger/Extractor';
+import SwaggerMockAdapter from '$core/Swagger/MockExtractorAdapter';
+import KernelRoutes from '$core/Routes/Kernel';
 
 export default class App
 {
     constructor()
     {
         this.app = express();
+
+        this.swaggerExtractor = new SwaggerExtractor();
+    }
+
+    async bootstrap()
+    {
+        await this.setConfig();
+
+        await this.setBasicAuth();
+
+        await this.loadPlugins();
+
+        await this.loadMiddlewares();
+
+        await this.loadControllers();
+
+        await this.loadComponentDefinitions();
+
+        await this.loadRoutes();
+
+        await this.loadMocks();
     }
 
     async setConfig()
@@ -118,69 +141,35 @@ export default class App
 
     async loadRoutes()
     {
-        let swaggerExtractor = new SwaggerExtractor();
-        let routes = swaggerExtractor.getRoutes();
+        let kernelRoutes = (new KernelRoutes(this.app))
+            .extractor(this.swaggerExtractor);
 
-        for (let idxRoute in routes)
-        {
-            let route = routes[idxRoute];
-            let middlewares = [];
-            for (let middlewareIdx in route.middlewares)
-            {
-                let middleware = route.middlewares[middlewareIdx];
-                let middlewarefn = this.app.middlewares[middleware]["handle"];
-                middlewares.push(middlewarefn);
-            }
-
-            let controllerName = route.controller.split("@")[0];
-            let fnName = route.controller.split("@")[1];
-            let controllerFn = this.app.controllers[controllerName][fnName];
-            let path = route.path.replace(/\{(.*)\}/g, ":$1");
-            console.log({ method: route.method, path, middlewares, controllerFn });
-            this.app[route.method](path, ...middlewares, controllerFn);
-        }
+        kernelRoutes.loadRoutes();
     }
 
     async loadMocks()
     {
-        let swaggerExtractor = new SwaggerExtractor();
-        let routes = swaggerExtractor.getRoutes();
+        let mockSwaggerExtractor = new SwaggerMockAdapter(this.swaggerExtractor);
 
-        for (let idxRoute in routes)
-        {
-            let route = routes[idxRoute];
-            let middlewares = [];
-            for (let idxMiddleware in route.middlewares)
-            {
-                let middleware = route.middlewares[idxMiddleware];
-                let middlewarefn = this.app.middlewares[middleware]["handle"];
-                middlewares.push(middlewarefn);
-            }
+        let kernelRoutes = (new KernelRoutes(this.app))
+            .extractor(mockSwaggerExtractor)
+            .prefix('/__mock');
 
-            let example = {};
-            let controllerFn = function (request, response)
-            {
-                response.end(JSON.stringify(example));
-            };
-            let path = '/__mock' + route.path.replace(/\{(.*)\}/g, ":$1");
-            let method = route.method;
-            console.log({ method, path, middlewares, controllerFn });
-            this.app[method](path, ...middlewares, controllerFn);
-        }
+        kernelRoutes.loadRoutes();
     }
 
     async loadComponentDefinitions()
     {
         let swaggerExtractor = new SwaggerExtractor();
-        let components = swaggerExtractor.getComponents();
+        this.app.components = swaggerExtractor.getComponents();
 
-        for (let componentName in components)
+        for (let componentName in this.app.components)
         {
             let uri = `/__component/definition/${componentName}`;
             this.app.get(uri, async function (req, res)
             {
                 res.setHeader('Content-Type', 'application/json');
-                return res.end(JSON.stringify(components[componentName]));
+                return res.end(JSON.stringify(this.app.components[componentName]));
             });
         }
     }

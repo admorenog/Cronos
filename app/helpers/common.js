@@ -8,6 +8,11 @@ export default class Common
             return v.toString(16);
         });
     }
+
+    static async wait(millis)
+    {
+        await (new Promise((res) => { setTimeout(res, millis); }));
+    }
 }
 
 
