@@ -53,7 +53,7 @@
   "engines": {
     "node": "latest"
   },
-  "type": "module",
+  "type": "commonjs",
   "keywords": [
     "Crontab",
     "node"
