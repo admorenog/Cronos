@@ -27,7 +27,7 @@
 		},
 		"plugins": [
 			 {
-				 "transform": "@zerollup/ts-transform-paths",
+				 "transform": "@zerollup/ts-transform-paths"
 			 }
 		 ],
 		"outDir": "./dist",
@@ -38,7 +38,7 @@
 		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true,
 		"importHelpers": true,
-		"module": "esnext", // add this line
+		"module": "esnext",
 		"target": "es6",
 		"typeRoots": [
 			"node_modules/@types"

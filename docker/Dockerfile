@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:14
+FROM mhart/alpine-node:16
 
 ENV   HOST 0.0.0.0
 ENV   PORT 8000

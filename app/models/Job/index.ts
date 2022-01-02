@@ -9,7 +9,6 @@ import Hook from '$models/Job/Hook';
 
 export default class Job extends DbModel
 {
-    _id : string;
     name : string;
     command : string;
     hooks : Hook[];

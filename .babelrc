@@ -11,10 +11,10 @@
 		[
 			"module-resolver",
 			{
-				"root" : ["./dist"],
+				"root" : ["."],
 				"alias": {
-					"$app": "./dist/app",
-					"$models": "./dist/app/models",
+					"$app": "./app",
+					"$models": "./app/models",
 					"$controllers": "./dist/app/controllers",
 					"$modules": "./dist/modules",
 					"$core": "./dist/core",
