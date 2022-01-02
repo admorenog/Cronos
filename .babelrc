@@ -11,14 +11,15 @@
 		[
 			"module-resolver",
 			{
+				"root" : ["./dist"],
 				"alias": {
-					"$app": "./app",
-					"$models": "./app/models",
-					"$controllers": "./app/controllers",
-					"$helpers": "./app/helpers",
-					"$core": "./app/core",
-					"$logs": "./storage/logs",
-					"$db": "./storage/db"
+					"$app": "./dist/app",
+					"$models": "./dist/app/models",
+					"$controllers": "./dist/app/controllers",
+					"$modules": "./dist/modules",
+					"$core": "./dist/core",
+					"$logs": "./dist/storage/logs",
+					"$db": "./dist/storage/db"
 				}
 			}
 		]

@@ -1,14 +1,15 @@
 import path from 'path';
 import fs from 'fs';
-import Paths from '$helpers/Paths';
+import Paths from '$modules/Paths';
 
 export default class Extractor
 {
+    swaggers: {swagger: any, filename: string}[] = [];
+    routes: any[] = [];
+    components: {} = {};
+
     constructor()
     {
-        this.swaggers = [];
-        this.routes = [];
-        this.components = {};
         this.loadSwaggers();
     }
 
@@ -20,14 +21,14 @@ export default class Extractor
 
     loadSwaggers()
     {
-        let routesPath = Paths.routes();
-        let swaggers = fs.readdirSync(routesPath);
+        const routesPath = Paths.routes();
+        const swaggers = fs.readdirSync(routesPath);
 
-        for (let idxSwagger in swaggers)
+        for (const idxSwagger in swaggers)
         {
-            let swaggerFileName = swaggers[idxSwagger];
-            let swaggerPath = path.join(routesPath, swaggerFileName);
-            let swaggerAsJson = fs.readFileSync(swaggerPath);
+            const swaggerFileName = swaggers[idxSwagger];
+            const swaggerPath = path.join(routesPath, swaggerFileName);
+            const swaggerAsJson = fs.readFileSync(swaggerPath).toString();
             this.swaggers.push({
                 filename: swaggerFileName,
                 swagger: JSON.parse(swaggerAsJson)
@@ -37,27 +38,27 @@ export default class Extractor
 
     loadRoutesFromSwaggers()
     {
-        for (let idxSwagger in this.swaggers)
+        for (const idxSwagger in this.swaggers)
         {
-            let swagger = this.swaggers[idxSwagger].swagger;
+            const swagger = this.swaggers[idxSwagger].swagger;
 
-            let paths = swagger.paths;
-            for (let path in paths)
+            const paths = swagger.paths;
+            for (const route in paths)
             {
-                let methods = paths[path];
-                for (let method in methods)
+                const path = paths[route];
+                for (const verb in path.methods)
                 {
-                    let methodInfo = methods[method];
-                    let middlewares = methodInfo["x-middlewares"];
-                    let controller = methodInfo["x-controller"];
+                    const methodInfo = path.methods[verb];
+                    const middlewares = methodInfo["x-middlewares"];
+                    const controller = methodInfo["x-controller"];
 
-                    if (!this.isRouteAlreadyDefined(path, method))
+                    if (!this.isRouteAlreadyDefined(route, verb))
                     {
-                        this.routes.push({ method, path, middlewares, controller });
+                        this.routes.push({ verb, route, middlewares, controller });
                     }
                     else
                     {
-                        console.error(`The route ${method} ${path} is already defined, skipping.`);
+                        console.error(`The route ${verb} ${route} is already defined, skipping.`);
                     }
                 }
             }
@@ -66,7 +67,7 @@ export default class Extractor
 
     getResponses(method)
     {
-        let responses = {};
+        const responses = {};
         // let methodResponses = method.responses || {};
         // for (let httpCode in methodResponses)
         // {
@@ -80,18 +81,18 @@ export default class Extractor
 
     loadComponentsFromSwaggers()
     {
-        for (let idxSwagger in this.swaggers)
+        for (const idxSwagger in this.swaggers)
         {
-            let filename = this.swaggers[idxSwagger].filename;
-            let swagger = this.swaggers[idxSwagger].swagger;
+            const filename = this.swaggers[idxSwagger].filename;
+            const swagger = this.swaggers[idxSwagger].swagger;
 
             if (typeof swagger.components != typeof undefined
                 && typeof swagger.components.schemas != typeof undefined)
             {
-                let components = swagger.components.schemas;
-                for (let componentName in components)
+                const components = swagger.components.schemas;
+                for (const componentName in components)
                 {
-                    let component = components[componentName];
+                    const component = components[componentName];
                     component.filename = filename;
                     if (typeof this.components[componentName] == typeof undefined)
                     {
@@ -109,7 +110,7 @@ export default class Extractor
         return this.components;
     }
 
-    isRouteAlreadyDefined(path, method)
+    isRouteAlreadyDefined(path : string, method : string)
     {
         return this.routes.filter(route =>
         {

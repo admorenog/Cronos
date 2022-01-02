@@ -5,3 +5,4 @@ storage/logs/*.log
 supervisord.log
 supervisord.pid
 .DS_Store
+dist/*

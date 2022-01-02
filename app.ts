@@ -1,5 +1,5 @@
 import App from '$app/App';
-import helpers from '$helpers/common';
+import helpers from '$modules/common';
 
 void async function main()
 {
@@ -9,9 +9,9 @@ void async function main()
         await helpers.wait(2000);
     }
 
-    let app = new App();
+    const app = new App();
 
-    app.bootstrap();
+    await app.bootstrap();
 
-    app.listen();
+    return app.listen();
 }();

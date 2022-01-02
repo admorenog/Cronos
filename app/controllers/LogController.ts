@@ -1,5 +1,6 @@
 import Log from '$models/Log';
-import Job from '$models/Job';
+import Job from '$app/models/Job';
+import fs from 'fs';
 
 export default class LogController
 {
@@ -20,9 +21,9 @@ export default class LogController
 
     async show(request, response)
     {
-        let job = await (new Job(request.params.jobId)).get();
+        const job = await (new Job(request.params.jobId)).get();
 
-        let log = await (new Log(null, job)).getAll();
+        const log = await (new Log(null, job)).getAll();
 
         response.end(JSON.stringify(log));
     }
@@ -30,29 +31,29 @@ export default class LogController
     async delete(request, response)
     {
         // FIXME: change this to remove the current log.
-        crontab.remove(request.body._id);
+        // crontab.remove(request.body._id);
         response.end();
     };
 
     async get(request, response)
     {
         // TODO: return the selected log
-        let _file = crontab.log_folder + "/" + req.query.id + ".log";
+        // let _file = crontab.log_folder + "/" + request.query.id + ".log";
 
-        if (fs.existsSync(_file))
-            res.sendFile(_file);
-        else
-            res.end("No errors logged yet");
+        // if (fs.existsSync(_file))
+        //     response.sendFile(_file);
+        // else
+        //     response.end("No errors logged yet");
     };
 
     async getstdout(request, response)
     {
         // TODO: return the selected stdout
-        let _file = crontab.log_folder + "/" + req.query.id + ".stdout.log";
+        // let _file = crontab.log_folder + "/" + request.query.id + ".stdout.log";
 
-        if (fs.existsSync(_file))
-            res.sendFile(_file);
-        else
-            res.end("No errors logged yet");
+        // if (fs.existsSync(_file))
+        //     response.sendFile(_file);
+        // else
+        //     response.end("No errors logged yet");
     }
 }

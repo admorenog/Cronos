@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM mhart/alpine-node:14
 
 ENV   HOST 0.0.0.0
 ENV   PORT 8000
@@ -16,8 +16,6 @@ RUN   apk --no-cache add \
       bash \
       wget \
       curl \
-      nodejs \
-      npm \
       supervisor
 
 EXPOSE $PORT

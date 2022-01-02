@@ -1,6 +1,6 @@
 #!node_modules/.bin/babel-node
-//--inspect - brk=0.0.0.0: 9230
-import Job from '$models/Job';
+// --inspect - brk=0.0.0.0: 9230
+import Job from '$app/models/Job';
 
 /**
  * argv = [
@@ -15,8 +15,8 @@ void async function main(argv)
         return console.error(`Insufficient Arguments: ${argv.length}, 2 needed.`);
     }
 
-    let _id = argv[1];
-    let job = await (new Job(_id)).get();
+    const _id = argv[1];
+    const job = await (new Job(_id)).get();
 
     await job.exec();
     job.saveLogs();

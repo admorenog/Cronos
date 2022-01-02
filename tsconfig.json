@@ -1,42 +1,47 @@
 {
 	"compileOnSave": false,
 	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"$app/*": [
+				"./app/*"
+			],
+			"$models*": [
+				"./app/models*"
+			],
+			"$controllers*": [
+				"./app/controllers*"
+			],
+			"$modules*": [
+				"./modules*"
+			],
+			"$core*": [
+				"./core*"
+			],
+			"$logs*": [
+				"./storage/logs*"
+			],
+			"$db*": [
+				"./storage/db*"
+			]
+		},
+		"plugins": [
+			 {
+				 "transform": "@zerollup/ts-transform-paths",
+			 }
+		 ],
 		"outDir": "./dist",
 		"sourceMap": true,
 		"moduleResolution": "node",
+		"types" : ["node"],
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
+		"allowSyntheticDefaultImports": true,
 		"importHelpers": true,
+		"module": "esnext", // add this line
 		"target": "es6",
 		"typeRoots": [
 			"node_modules/@types"
-		],
-		"include" : [
-			"./app"
 		]
-	},
-	"baseUrl": ".",
-	"paths": {
-		"$app/*": [
-			"app/*"
-		],
-		"$models*": [
-			"./app/models*"
-		],
-		"$controllers*": [
-			"./app/controllers*"
-		],
-		"$helpers*": [
-			"./app/helpers*"
-		],
-		"$core*": [
-			"./app/core*"
-		],
-		"$logs*": [
-			"./storage/logs*"
-		],
-		"$db*": [
-			"storage/db*"
-		]
-	},
+	}
 }

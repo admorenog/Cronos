@@ -1,10 +1,19 @@
 import path from 'path';
 import fs from 'fs';
-import paths from '$helpers/Paths';
+import paths from '$modules/Paths';
 import DbModel from '$core/Model/DbModel';
+import Job from '$app/models/Job';
 
 export default class Log extends DbModel
 {
+    _id: string = null;
+    job: Job = null;
+    folder: string = null;
+    logFileError: string  = null;
+    logFileOut: string  = null;
+    currentTime: string  = null;
+    logHeader: string = null;
+
     constructor(_id = null, job = null)
     {
         super();
@@ -24,7 +33,7 @@ export default class Log extends DbModel
     {
         if (output || this.job.output.std.out)
         {
-            let logRecord = this.logHeader + (output || this.job.output.std.out);
+            const logRecord = this.logHeader + (output || this.job.output.std.out);
             fs.appendFileSync(this.logFileOut, logRecord);
         }
     }
@@ -33,7 +42,7 @@ export default class Log extends DbModel
     {
         if (err || this.job.output.std.err)
         {
-            let logRecord = this.logHeader + (err || this.job.output.std.err);
+            const logRecord = this.logHeader + (err || this.job.output.std.err);
             fs.appendFileSync(this.logFileError, logRecord);
         }
     }

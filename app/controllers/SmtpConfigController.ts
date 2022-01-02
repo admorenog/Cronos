@@ -4,15 +4,15 @@ export default class SmtpConfigController
 {
     async index(request, response)
     {
-        let smtpConfig = new SmtpConfig();
-        let listOfSmtpConfigs = await smtpConfig.getAll();
+        const smtpConfig = new SmtpConfig();
+        const listOfSmtpConfigs = await smtpConfig.getAll();
 
         response.end(JSON.stringify(listOfSmtpConfigs));
     };
 
     async store(request, response)
     {
-        let smtpConfig = SmtpConfig.parse(request.body);
+        const smtpConfig = SmtpConfig.parse(request.body);
         await smtpConfig.save();
 
         response.end(smtpConfig.toJson());
@@ -20,7 +20,7 @@ export default class SmtpConfigController
 
     async update(request, response)
     {
-        let smtpConfig = SmtpConfig.parse(request.body);
+        const smtpConfig = SmtpConfig.parse(request.body);
         smtpConfig._id = request.params.idSmtpConfig;
         smtpConfig.save();
 
@@ -29,7 +29,7 @@ export default class SmtpConfigController
 
     async delete(request, response)
     {
-        let smtpConfig = new SmtpConfig(request.params.idSmtpConfig);
+        const smtpConfig = new SmtpConfig(request.params.idSmtpConfig);
         smtpConfig.delete();
 
         response.end(smtpConfig.toJson());

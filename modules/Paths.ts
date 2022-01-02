@@ -2,31 +2,31 @@ import path from 'path';
 
 export default class Paths
 {
-    static root()
+    static root(): string
     {
         return path.dirname(require.main.filename);
     }
-    static controllers()
+    static controllers(): string
     {
         return path.resolve(Paths.root(), "app/controllers");
     }
-    static middlewares()
+    static middlewares(): string
     {
         return path.resolve(Paths.root(), "app/middlewares");
     }
-    static routes()
+    static routes(): string
     {
         return path.resolve(Paths.root(), "routes");
     }
-    static storage()
+    static storage(): string
     {
         return path.resolve(Paths.root(), "storage");
     }
-    static logs()
+    static logs(): string
     {
         return path.resolve(Paths.storage(), "logs");
     }
-    static db()
+    static db(): string
     {
         return path.resolve(Paths.storage(), "db");
     }

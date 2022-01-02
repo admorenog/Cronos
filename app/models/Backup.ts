@@ -1,18 +1,20 @@
 import fs from 'fs';
-import paths from '$helpers/paths';
+import paths from '$modules/Paths';
 
 export default class Backup
 {
-    constructor()
+    static dbPath: string = null;
+
+    static init()
     {
-        this.dbPath = paths.db();
+        Backup.dbPath = paths.db();
     }
 
     static async getList()
     {
-        let dbPath = Backup.init();
-        let listOfBackups = [];
-        fs.readdirSync(dbPath).forEach(function (file)
+        const dbPath = Backup.init();
+        const listOfBackups = [];
+        fs.readdirSync(Backup.dbPath).forEach(function (file)
         {
             // file name begins with backup
             if (file.indexOf("backup") === 0)
@@ -32,7 +34,7 @@ export default class Backup
                 Tj = new Date(Tj.substring(0, Tj.length - 3)).valueOf();
                 if (Ti > Tj)
                 {
-                    let temp = listOfBackups[i];
+                    const temp = listOfBackups[i];
                     listOfBackups[i] = listOfBackups[j];
                     listOfBackups[j] = temp;
                 }

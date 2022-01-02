@@ -1,17 +1,25 @@
 import path from 'path';
 import fs from 'fs';
-import nodemailer from 'nodemailer';
+import nodemailer, { SendMailOptions, Transporter } from 'nodemailer';
 
 export default class Mail
 {
-    constructor(options)
+    mailOptions: SendMailOptions;
+    transporter: Transporter;
+    templatesPath: string;
+    template: string;
+    attach_output: boolean;
+    attach_error: boolean;
+
+    constructor(options : any)
     {
         this.mailOptions = options.mailOptions;
         this.transporter = nodemailer.createTransport(options.transporter);
         this.templatesPath = path.join(__dirname, "/../config/templates/");
+        this.template = options.template;
         if (!fs.existsSync(this.templatesPath))
         {
-            return console.error(`the templates path folder doesn't exists, check: ${this.templatesPath}`);
+            throw new Error(`the templates path folder doesn't exists, check: ${this.templatesPath}`);
         }
 
     }
@@ -24,19 +32,19 @@ export default class Mail
 
     getHtmlTemplate()
     {
-        let templateFile = path.join(this.templatesPath, this.mailOptions.template);
-        let htmlTemplate = fs.readFileSync(templateFile).toString();
+        const templateFile = path.join(this.templatesPath, this.template);
+        const htmlTemplate = fs.readFileSync(templateFile).toString();
         return htmlTemplate || this.mailOptions.html;
     }
 
     parseFields(ctx)
     {
         this.mailOptions.html = this.getHtmlTemplate();
-        for (let field in this.mailOptions)
+        for (const field in this.mailOptions)
         {
             if (typeof this.mailOptions[field] == typeof "")
             {
-                let template = `\`${this.mailOptions[field]}\``;
+                const template = `\`${this.mailOptions[field]}\``;
                 this.mailOptions[field] = this.parseTemplate(template, ctx);
             }
         }

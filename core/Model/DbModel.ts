@@ -1,45 +1,52 @@
 import path from "path";
 import Datastore from 'nedb';
-import paths from '$helpers/paths';
+import paths from '$modules/Paths';
 
 export default class DbModel
 {
-    constructor()
+    _db: Datastore = null;
+    _id: string = null;
+    created_at: number = null;
+    updated_at: number = null;
+
+    constructor(_id? : string)
     {
+
     }
 
-    db()
+    db() : Datastore
     {
         if (!this._db)
         {
-            let dbFile = path.join(paths.db(), this.constructor.name.toLowerCase() + '.db');
+            const dbFile = path.join(paths.db(), this.constructor.name.toLowerCase() + '.db');
             this._db = new Datastore({ filename: dbFile });
             this._db.loadDatabase(function (err) { if (err) { throw err; } });
         }
         return this._db;
     }
 
-    async save()
+    async save() : Promise<DbModel>
     {
-        let self = this;
+        const self = this;
         self.updated_at = (new Date()).getTime();
         if (!self._id)
         {
             self.created_at = self.updated_at;
             delete self._id;
-            let model = await (new Promise((resolve, reject) =>
+            const model: DbModel = await (new Promise((resolve, reject) =>
             {
                 self.db().insert(self.toStdObject(), (err, insertedDoc) =>
                 {
                     if (err) { console.error(err); reject(err); }
-                    resolve(insertedDoc);
+                    const model = DbModel.parse(insertedDoc);
+                    resolve(model);
                 });
             }));
             self._id = model._id;
         }
         else
         {
-            let stdObj = self.toStdObject();
+            const stdObj : any = self.toStdObject();
             await (new Promise((resolve, reject) =>
             {
                 self.db().update({ _id: stdObj._id }, stdObj, {}, (err, numberOfUpdated, upsert) =>
@@ -52,10 +59,10 @@ export default class DbModel
         return self;
     }
 
-    static parse(obj)
+    static parse(obj: any) : DbModel
     {
-        let model = new this(obj._id);
-        for (let field in obj)
+        const model = new this(obj._id);
+        for (const field in obj)
         {
             if (field == "updated_at")
             {
@@ -69,11 +76,11 @@ export default class DbModel
         return model;
     }
 
-    async getAll()
+    async getAll() : Promise<this[]>
     {
-        let self = this;
+        const self = this;
 
-        let models = await (new Promise((resolve, reject) =>
+        const models : this[] = await (new Promise((resolve, reject) =>
         {
             self.db().find({}).exec(function (err, documents)
             {
@@ -85,10 +92,10 @@ export default class DbModel
         return models;
     }
 
-    async get()
+    async get() : Promise<this>
     {
-        let self = this;
-        let model = await (new Promise((resolve, reject) =>
+        const self = this;
+        const model : this = await (new Promise((resolve, reject) =>
         {
             self.db().find({ _id: self._id }).exec(function (err, documents)
             {
@@ -100,10 +107,10 @@ export default class DbModel
         return model;
     }
 
-    async delete()
+    async delete() : Promise<number>
     {
-        let self = this;
-        let model = await (new Promise((resolve, reject) =>
+        const self = this;
+        const numRemoved : number = await (new Promise((resolve, reject) =>
         {
             self.db().remove({ _id: self._id }, (err, n) =>
             {
@@ -118,13 +125,13 @@ export default class DbModel
             });
         }));
 
-        return model;
+        return numRemoved;
     }
 
-    toStdObject()
+    toStdObject() : object
     {
-        let model = {};
-        for (let field in this)
+        const model : any = {};
+        for (const field in this)
         {
             if (field != "_db")
             {
@@ -134,7 +141,7 @@ export default class DbModel
         return model;
     }
 
-    toJson()
+    toJson() : string
     {
         return JSON.stringify(this.toStdObject());
     }
