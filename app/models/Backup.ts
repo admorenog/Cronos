@@ -14,7 +14,7 @@ export default class Backup
     {
         const dbPath = Backup.init();
         const listOfBackups = [];
-        fs.readdirSync(Backup.dbPath).forEach(function (file)
+        fs.readdirSync(Backup.dbPath).forEach((file) =>
         {
             // file name begins with backup
             if (file.indexOf("backup") === 0)

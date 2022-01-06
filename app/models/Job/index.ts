@@ -17,14 +17,8 @@ export default class Job extends DbModel
     saved : string;
     schedule : string;
     timestamp : string;
-    cronos_id : string;
+    cronosId : string;
     output: any = {std: "", exitCode: 0 };
-
-    constructor(_id = null)
-    {
-        super();
-        this._id = _id;
-    }
 
     async exec()
     {
@@ -41,7 +35,7 @@ export default class Job extends DbModel
 
     saveLogs()
     {
-        if (this.logging && this.logging == "true")
+        if (this.logging && this.logging === "true")
         {
             const log = new Log(null, this);
             log.saveOutput();
@@ -51,23 +45,23 @@ export default class Job extends DbModel
 
     sendMail()
     {
-        if (typeof (this.mailing.mailOptions) != typeof (undefined)
-            && typeof (this.mailing.transporter) != typeof (undefined))
+        if (typeof (this.mailing.mailOptions) !== typeof (undefined)
+            && typeof (this.mailing.transporter) !== typeof (undefined))
         {
             const hostname = os.hostname();
             const job = this;
             const context = { hostname, job };
 
-            const tmpOutFile = `/tmp/${job._id}_${(new Date).getMilliseconds()}.out.log`;
-            const tmpErrFile = `/tmp/${job._id}_${(new Date).getMilliseconds()}.err.log`;
+            const tmpOutFile = `/tmp/${job._id}_${(new Date()).getMilliseconds()}.out.log`;
+            const tmpErrFile = `/tmp/${job._id}_${(new Date()).getMilliseconds()}.err.log`;
             this.mailing.mailOptions.attachments = [];
-            if (this.mailing.attach_output && this.output.std.out)
+            if (this.mailing.attachOutput && this.output.std.out)
             {
                 fs.writeFileSync(tmpOutFile, this.output.std.out);
                 const attachment = { filename: "stdout.log", path: tmpOutFile };
                 this.mailing.mailOptions.attachments.push(attachment);
             }
-            if (this.mailing.attach_error && this.output.std.err)
+            if (this.mailing.attachError && this.output.std.err)
             {
                 fs.writeFileSync(tmpErrFile, this.output.std.err);
                 const attachment = { filename: "stderr.log", path: tmpErrFile };
@@ -77,7 +71,7 @@ export default class Job extends DbModel
             const mail = new Mail(this.mailing);
             const self = this;
 
-            mail.sendMail(context, function (error, info)
+            mail.sendMail(context, (error, info) =>
             {
                 const log = new Log(null, self);
                 if (error) { return log.saveError(JSON.stringify(error) + "\n"); }
@@ -90,7 +84,7 @@ export default class Job extends DbModel
 
     async sendHooks()
     {
-        for (const idxHook in this.hooks)
+        for (const idxHook of Object.keys(this.hooks))
         {
             const hook = this.hooks[idxHook];
 

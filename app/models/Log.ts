@@ -16,15 +16,14 @@ export default class Log extends DbModel
 
     constructor(_id = null, job = null)
     {
-        super();
-        this._id = _id;
+        super(_id);
         if (job)
         {
             this.job = job;
             this.folder = paths.logs();
             this.logFileError = path.join(this.folder, this.job._id + ".err.log");
             this.logFileOut = path.join(this.folder, this.job._id + ".out.log");
-            this.currentTime = (new Date).toLocaleString();
+            this.currentTime = (new Date()).toLocaleString();
             this.logHeader = `[${this.currentTime}][exit:${this.job.output.exitCode}] `;
         }
     }

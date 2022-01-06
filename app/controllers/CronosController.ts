@@ -1,13 +1,14 @@
+import * as core from 'express-serve-static-core';
 import Backup from '$models/Backup';
 
 export default class CronosController
 {
-    async index(request, response)
+    async index(request: core.Request, response: core.Response)
     {
         response.render('index');
     }
 
-    async backups(request, response)
+    async backups(request: core.Request, response: core.Response)
     {
         // FIXME: show a list of non active cronos
         response.setHeader('Content-Type', 'application/json');
@@ -15,7 +16,7 @@ export default class CronosController
         response.end(JSON.stringify(listOfBackups));
     };
 
-    async set(request, response)
+    async set(request: core.Request, response: core.Response)
     {
         // FIXME: set new crontab
         // crontab.set_crontab(request.query.env_vars, function (err)
@@ -25,7 +26,7 @@ export default class CronosController
         // });
     };
 
-    async delete(request, response)
+    async delete(request: core.Request, response: core.Response)
     {
         // FIXME: delete the selected cronos
         response.setHeader('Content-Type', 'application/json');
@@ -33,14 +34,14 @@ export default class CronosController
         response.end(JSON.stringify(listOfBackups));
     };
 
-    async enable(request, response)
+    async enable(request: core.Request, response: core.Response)
     {
         // FIXME: enable the selected cronos
         // crontab.restore(request.query.db);
         response.end();
     };
 
-    async import(request, response)
+    async import(request: core.Request, response: core.Response)
     {
         // FIXME: import from crontab
         // crontab.import_crontab();

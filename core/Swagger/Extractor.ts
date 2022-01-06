@@ -24,7 +24,7 @@ export default class Extractor
         const routesPath = Paths.routes();
         const swaggers = fs.readdirSync(routesPath);
 
-        for (const idxSwagger in swaggers)
+        for (const idxSwagger of Object.keys(swaggers))
         {
             const swaggerFileName = swaggers[idxSwagger];
             const swaggerPath = path.join(routesPath, swaggerFileName);
@@ -38,26 +38,26 @@ export default class Extractor
 
     loadRoutesFromSwaggers()
     {
-        for (const idxSwagger in this.swaggers)
+        for (const idxSwagger of Object.keys(this.swaggers))
         {
             const swagger = this.swaggers[idxSwagger].swagger;
 
             const paths = swagger.paths;
-            for (const route in paths)
+            for (const route of Object.keys(paths))
             {
-                const path = paths[route];
-                for (const verb in path)
+                const pathInfo = paths[route];
+                for (const verb of Object.keys(pathInfo))
                 {
-                    const methodInfo = path[verb];
-                    const middlewares = methodInfo["x-middlewares"] || [];
-                    const controller = methodInfo["x-controller"];
+                    const method = pathInfo[verb];
+                    const middlewares = method["x-middlewares"] || [];
+                    const controller = method["x-controller"];
                     if (!this.isRouteAlreadyDefined(route, verb))
                     {
                         this.routes.push({ verb, route, middlewares, controller });
                     }
                     else
                     {
-                        console.error(`The route ${verb} ${route} is already defined, skipping.`);
+                        throw new Error(`The route ${verb} ${route} is already defined, skipping.`);
                     }
                 }
             }
@@ -73,27 +73,26 @@ export default class Extractor
         //     let content = methodResponses[httpCode].content["application/json"].schema
         //     responses[httpCode]
         // }
-        console.log(method);
 
         return responses;
     }
 
     loadComponentsFromSwaggers()
     {
-        for (const idxSwagger in this.swaggers)
+        for (const idxSwagger of Object.keys(this.swaggers))
         {
             const filename = this.swaggers[idxSwagger].filename;
             const swagger = this.swaggers[idxSwagger].swagger;
 
-            if (typeof swagger.components != typeof undefined
-                && typeof swagger.components.schemas != typeof undefined)
+            if (typeof swagger.components !== typeof undefined
+                && typeof swagger.components.schemas !== typeof undefined)
             {
                 const components = swagger.components.schemas;
-                for (const componentName in components)
+                for (const componentName of Object.keys(components))
                 {
                     const component = components[componentName];
                     component.filename = filename;
-                    if (typeof this.components[componentName] == typeof undefined)
+                    if (typeof this.components[componentName] === typeof undefined)
                     {
                         this.components[componentName] = [];
                     }
@@ -109,11 +108,11 @@ export default class Extractor
         return this.components;
     }
 
-    isRouteAlreadyDefined(path : string, method : string)
+    isRouteAlreadyDefined(newPath : string, newMethod : string)
     {
         return this.routes.filter(route =>
         {
-            route.path == path && route.method == method
+            return route.path === newPath && route.method === newMethod
         }).length > 0;
     }
 }

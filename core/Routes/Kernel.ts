@@ -30,11 +30,11 @@ export default class Kernel
 
         const endpoints: object[] = [];
 
-        for (const idxPath in paths)
+        for (const idxPath of Object.keys(paths))
         {
             const path = paths[idxPath];
             const middlewares = [];
-            for (const idx in path.middlewares)
+            for (const idx of Object.keys(path.middlewares))
             {
                 const middlewareName = path.middlewares[idx];
                 middlewares.push(this._dependencyManager.get(middlewareName + "@handle"));

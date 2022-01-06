@@ -4,14 +4,7 @@ import fs from 'fs';
 
 export default class Cronos extends DbModel
 {
-    id: string;
-    env_id: string;
-    constructor(id = null)
-    {
-        super();
-        this.id = id;
-        this.env_id = null;
-    }
+    envId: string = null;
 
     import()
     {
@@ -58,14 +51,14 @@ export default class Cronos extends DbModel
         // });
     };
 
-    override(env_vars, callback)
+    override(envVars, callback)
     {
-        exports.crontabs(function (tabs)
+        exports.crontabs((tabs) =>
         {
-            let crontab_string = "";
-            if (env_vars)
+            let crontabString = "";
+            if (envVars)
             {
-                crontab_string = env_vars + "\n";
+                crontabString = envVars + "\n";
             }
             tabs.forEach(function (tab)
             {
@@ -73,65 +66,58 @@ export default class Cronos extends DbModel
                 {
                     const stderr = path.join(this.cronPath, tab._id + ".stderr");
                     const stdout = path.join(this.cronPath, tab._id + ".stdout");
-                    const log_file = path.join(exports.log_folder, tab._id + ".log");
-                    const log_file_stdout = path.join(exports.log_folder, tab._id + ".stdout.log");
+                    const logFile = path.join(exports.log_folder, tab._id + ".log");
+                    const logFileStdout = path.join(exports.log_folder, tab._id + ".stdout.log");
 
-                    if (tab.command[tab.command.length - 1] != ";") // add semicolon
+                    if (tab.command[tab.command.length - 1] !== ";") // add semicolon
                         tab.command += ";";
 
-                    crontab_string += tab.schedule + " ({ " + tab.command + " } | tee " + stdout + ") 3>&1 1>&2 2>&3 | tee " + stderr;
+                    crontabString += tab.schedule + " ({ " + tab.command + " } | tee " + stdout + ") 3>&1 1>&2 2>&3 | tee " + stderr;
 
-                    if (tab.logging && tab.logging == "true")
+                    if (tab.logging && tab.logging === "true")
                     {
-                        crontab_string += "; if test -f " + stderr +
-                            "; then date >> \"" + log_file + "\"" +
-                            "; cat " + stderr + " >> \"" + log_file + "\"" +
+                        crontabString += "; if test -f " + stderr +
+                            "; then date >> \"" + logFile + "\"" +
+                            "; cat " + stderr + " >> \"" + logFile + "\"" +
                             "; fi";
 
-                        crontab_string += "; if test -f " + stdout +
-                            "; then date >> \"" + log_file_stdout + "\"" +
-                            "; cat " + stdout + " >> \"" + log_file_stdout + "\"" +
+                        crontabString += "; if test -f " + stdout +
+                            "; then date >> \"" + logFileStdout + "\"" +
+                            "; cat " + stdout + " >> \"" + logFileStdout + "\"" +
                             "; fi";
                     }
 
                     if (tab.hooks)
                     {
-                        for (const idxHook in tab.hooks)
+                        for (const idxHook of Object.keys(tab.hooks))
                         {
                             const hook = tab.hooks[idxHook];
                             hook.command = hook.command || "tee";
-                            crontab_string += "; if test -f " + stdout +
+                            crontabString += "; if test -f " + stdout +
                                 "; then " + hook.command + " < " + stdout +
                                 "; fi";
                         }
                     }
 
-                    if (tab.mailing && JSON.stringify(tab.mailing) != "{}")
+                    if (tab.mailing && JSON.stringify(tab.mailing) !== "{}")
                     {
-                        crontab_string += "; /usr/local/bin/node " + __dirname + "/bin/crontab-ui-mailer.js " + tab._id + " " + stdout + " " + stderr;
+                        crontabString += "; /usr/local/bin/node " + __dirname + "/bin/crontab-ui-mailer.js " + tab._id + " " + stdout + " " + stderr;
                     }
 
-                    crontab_string += "\n";
+                    crontabString += "\n";
                 }
             });
 
-            fs.writeFile(exports.env_file, env_vars, function (err)
+            fs.writeFile(exports.env_file, envVars, function (err)
             {
                 if (err)
                 {
-                    console.error(err);
                     callback(err);
                 }
                 // In docker we're running as the root user, so we need to write the file as root and not crontab
                 const fileName = process.env.CRON_IN_DOCKER !== undefined ? "root" : "crontab";
-                fs.writeFile(path.join(this.cronPath, fileName), crontab_string, function (err)
+                fs.writeFile(path.join(this.cronPath, fileName), crontabString, () =>
                 {
-                    if (err)
-                    {
-                        console.error(err);
-                        return callback(err);
-                    }
-
                     // exec("crontab " + path.join(this.cronPath, fileName), function (err)
                     // {
                     //     if (err)

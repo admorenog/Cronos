@@ -24,7 +24,7 @@ export default class DependencyMock extends DependencyResolver implements Depend
 	{
         const dependencyFiles = fs.readdirSync(dependenciesPath);
 
-        for (const idx in dependencyFiles)
+        for (const idx of Object.keys(dependencyFiles))
         {
 			const dependencyFile = dependencyFiles[idx];
 			await this.addMockAsDependency(dependenciesPath, dependencyFile);

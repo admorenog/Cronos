@@ -12,7 +12,7 @@ void async function main(argv)
 {
     if (argv.length < 2)
     {
-        return console.error(`Insufficient Arguments: ${argv.length}, 2 needed.`);
+        throw new Error(`Insufficient Arguments: ${argv.length}, 2 needed.`);
     }
 
     const _id = argv[1];

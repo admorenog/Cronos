@@ -43,7 +43,7 @@ export default class DependencyResolver implements DependencyManager
 	{
 		const name = dependencyFile.replace(".js", "");
 
-		if (typeof this._dependencies[name] != typeof undefined)
+		if (typeof this._dependencies[name] !== typeof undefined)
 		{
 			throw new Error(`Triying to load the dependency ${name} twice.`);
 		}

@@ -8,8 +8,8 @@ export default class Mail
     transporter: Transporter;
     templatesPath: string;
     template: string;
-    attach_output: boolean;
-    attach_error: boolean;
+    attachOutput: boolean;
+    attachError: boolean;
 
     constructor(options : any)
     {
@@ -24,7 +24,7 @@ export default class Mail
 
     }
 
-    sendMail(ctx, cb)
+    sendMail(ctx: object, cb: (error: Error, info: any) => void)
     {
         this.mailOptions = this.parseFields(ctx);
         return this.transporter.sendMail(this.mailOptions, cb);
@@ -37,12 +37,12 @@ export default class Mail
         return htmlTemplate || this.mailOptions.html;
     }
 
-    parseFields(ctx)
+    parseFields(ctx: object)
     {
         this.mailOptions.html = this.getHtmlTemplate();
         for (const field in this.mailOptions)
         {
-            if (typeof this.mailOptions[field] == typeof "")
+            if (typeof this.mailOptions[field] === typeof "")
             {
                 const template = `\`${this.mailOptions[field]}\``;
                 this.mailOptions[field] = this.parseTemplate(template, ctx);
@@ -51,7 +51,7 @@ export default class Mail
         return this.mailOptions;
     }
 
-    parseTemplate(s, params)
+    parseTemplate(s: string, params: object)
     {
         return Function(...Object.keys(params), "return " + s)(...Object.values(params));
     }
