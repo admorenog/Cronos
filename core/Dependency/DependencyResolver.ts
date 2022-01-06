@@ -28,12 +28,14 @@ export default class DependencyResolver implements DependencyManager
 
 	async loadDependencies(dependenciesPath: string) : Promise<void>
 	{
-        const dependencyFiles = fs.readdirSync(dependenciesPath);
+        const dependencyFiles = fs.readdirSync(dependenciesPath, {withFileTypes: true});
 
         for (const idx in dependencyFiles)
         {
-			const dependencyFile = dependencyFiles[idx];
-			await this.addFileAsDependency(dependenciesPath, dependencyFile)
+			if(dependencyFiles[idx].isFile()) {
+				const dependencyFile = dependencyFiles[idx].name;
+				await this.addFileAsDependency(dependenciesPath, dependencyFile)
+			}
         }
 	}
 

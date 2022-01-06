@@ -12,15 +12,15 @@ export default class Paths
     }
     static middlewares(): string
     {
-        return path.resolve(Paths.root(), "app/middlewares");
+        return path.resolve(Paths.controllers(), "middlewares");
     }
     static routes(): string
     {
-        return path.resolve(Paths.root(), "routes");
+        return path.resolve(Paths.root() + "/..", "routes");
     }
     static storage(): string
     {
-        return path.resolve(Paths.root(), "storage");
+        return path.resolve(Paths.root() + "/..", "storage");
     }
     static logs(): string
     {

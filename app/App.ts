@@ -39,7 +39,7 @@ export default class App
 
         await this.loadPlugins();
 
-        this._dependencyResolver.bootstrap();
+        await this._dependencyResolver.bootstrap();
 
         await this.loadComponentDefinitions();
 
@@ -117,17 +117,19 @@ export default class App
         const routes = await this.getRoutes();
         this.registerRoutes(routes);
 
-        const mocks = await this.getMocks();
-        this.registerRoutes(mocks);
+        // const mocks = await this.getMocks();
+        // this.registerRoutes(mocks);
     }
 
-    async registerRoutes(routes)
+    async registerRoutes(routes: any[])
     {
         for (const idxRoute in routes)
         {
             const route = routes[idxRoute];
 
-            this.app[route.method](route.path, ...route.middlewares, route.controller);
+            console.log(route);
+
+            this.app[route.method](route.route, ...route.middlewares, route.controller);
         }
     }
 

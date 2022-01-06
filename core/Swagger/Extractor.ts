@@ -46,12 +46,11 @@ export default class Extractor
             for (const route in paths)
             {
                 const path = paths[route];
-                for (const verb in path.methods)
+                for (const verb in path)
                 {
-                    const methodInfo = path.methods[verb];
-                    const middlewares = methodInfo["x-middlewares"];
+                    const methodInfo = path[verb];
+                    const middlewares = methodInfo["x-middlewares"] || [];
                     const controller = methodInfo["x-controller"];
-
                     if (!this.isRouteAlreadyDefined(route, verb))
                     {
                         this.routes.push({ verb, route, middlewares, controller });

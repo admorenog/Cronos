@@ -14,7 +14,8 @@
     "otr_start": "NODE_ENV=debug node_modules/.bin/babel-node --inspect=0.0.0.0 dist/app.js .",
     "dev:start": "npm-run-all build start",
     "dev": "nodemon --watch app -e ts --exec npm run dev:start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "nvm" : "nvm -v"
   },
   "dependencies": {
     "body-parser": "^1.19.1",

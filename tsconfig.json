@@ -31,7 +31,7 @@
 			 }
 		 ],
 		"outDir": "./dist",
-		"sourceMap": true,
+		"inlineSourceMap": true,
 		"moduleResolution": "node",
 		"types" : ["node"],
 		"emitDecoratorMetadata": true,
