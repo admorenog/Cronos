@@ -51,11 +51,11 @@ export default class App
 
         this.loadPlugins();
 
+        this.publishComponentDefinitions();
+
         await this._dependencyResolver.bootstrap();
 
-        this.loadComponentDefinitions();
-
-        this.loadRoutes();
+        this.publishRoutes();
     }
 
     setConfig() : void
@@ -108,8 +108,9 @@ export default class App
         this.app.set('views', path.join(__dirname, "public"));
     }
 
-    async loadRoutes()
+    publishRoutes() : void
     {
+        // TODO: move this to a project file to let the user modify the route reader
         const routes = this.getRoutes();
         this.registerRoutes(routes);
 
@@ -117,17 +118,7 @@ export default class App
         // this.registerRoutes(mocks);
     }
 
-    async registerRoutes(routes: any[])
-    {
-        for (const idxRoute of Object.keys(routes))
-        {
-            const route = routes[idxRoute];
-
-            this.app[route.method](route.path, ...route.middlewares, route.controller);
-        }
-    }
-
-    getRoutes() : object[]
+    getRoutes() : {}[]
     {
         const swaggerRoutes = new SwaggerRoutes(paths.routes());
         const kernelRoutes = (new KernelRoutes(swaggerRoutes))
@@ -136,7 +127,7 @@ export default class App
         return kernelRoutes.endpoints();
     }
 
-    async getMocks() : Promise<object[]>
+    getMocks() : {}[]
     {
         const swaggerRoutes = new SwaggerRoutes(paths.routes());
         const swaggerExtractor = new SwaggerExtractor();
@@ -149,8 +140,19 @@ export default class App
         return kernelRoutes.endpoints();
     }
 
-    loadComponentDefinitions() : void
+    public async registerRoutes(routes: any[])
     {
+        for (const idxRoute of Object.keys(routes))
+        {
+            const route = routes[idxRoute];
+
+            this.app[route.method](route.path, ...route.middlewares, route.controller);
+        }
+    }
+
+    public publishComponentDefinitions() : void
+    {
+        // FIXME: this should be loaded by any component reader that returns an array or object.
         const swaggerExtractor = new SwaggerExtractor();
         this.components = swaggerExtractor.getComponents();
 

@@ -8,25 +8,25 @@ export default class DependencyResolver implements DependencyManager
 {
 	private _dependencies: any = {};
 
-	async bootstrap() : Promise<void>
+	public async bootstrap() : Promise<void>
 	{
 		await this.loadMiddlewares();
 		await this.loadControllers();
 	}
 
-    async loadMiddlewares() : Promise<void>
+    public async loadMiddlewares() : Promise<void>
     {
 		const middlewaresPath = paths.middlewares();
 		await this.loadDependencies(middlewaresPath);
 	}
 
-    async loadControllers() : Promise<void>
+    public async loadControllers() : Promise<void>
     {
         const controllersPath = paths.controllers();
 		await this.loadDependencies(controllersPath);
     }
 
-	async loadDependencies(dependenciesPath: string) : Promise<void>
+	public async loadDependencies(dependenciesPath: string) : Promise<void>
 	{
         const dependencyFiles = fs.readdirSync(dependenciesPath, {withFileTypes: true});
 
@@ -53,7 +53,7 @@ export default class DependencyResolver implements DependencyManager
 		this._dependencies[name] = new dependency();
 	}
 
-	get(dependency: string) : any
+	public get(dependency: string) : any
 	{
 		const dependencyParts = dependency.split("@");
 		const dependencyName = dependencyParts[0];

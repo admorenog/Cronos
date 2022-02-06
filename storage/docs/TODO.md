@@ -1,11 +1,13 @@
 ## backend
 
-- exclude views folder from nodemon.
+- load routes from other file.
+- load component definitions from another file.
+- autogenerate swagger from the routes and component definitions.
+- custom file configurations outside the core folder for customization.
 - import from crontab -l
 - get env vars from cron
 - get env vars from root
-- load definitions from swagger
-- make a middleware that validate the request with the swagger.
+- validators (component definitions)
 - make a return middleware that formats the output.
 - make tests.
 - Make auth controller
@@ -14,12 +16,6 @@
 
 ## frontent
 
-- improve job view
-- mail configuration area.
-- dark mode with multiple modals is confusing, improve how they see (maybe blurring the background of the dialog?)
-- New logo
-- new front name for name
 - Hide passwords (with show button)
 - Make auth views (create new user, asign roles, middleware that check permissions and session)
-- get form validations from swagger?
 
