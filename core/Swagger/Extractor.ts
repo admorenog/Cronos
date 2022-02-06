@@ -1,8 +1,9 @@
 import path from 'path';
 import fs from 'fs';
 import Paths from '$modules/Paths';
+import Router from '$core/Routes/Router';
 
-export default class Extractor
+export default class Extractor implements Router
 {
     swaggers: {swagger: any, filename: string}[] = [];
     routes: any[] = [];
@@ -13,7 +14,7 @@ export default class Extractor
         this.loadSwaggers();
     }
 
-    getRoutes()
+    get()
     {
         this.loadRoutesFromSwaggers();
         return this.routes;

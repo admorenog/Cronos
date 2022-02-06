@@ -1,15 +1,11 @@
 import App from '$app/App';
-import helpers from '$modules/common';
+import Common from '$modules/common';
 
 void async function main()
 {
-    if (process.env.NODE_ENV == 'debug')
-    {
-        console.log("waiting the debugger");
-        await helpers.wait(2000);
-    }
+    await Common.waitDebugger();
 
-    const app = new App();
+    const app = App.instance();
 
     await app.bootstrap();
 

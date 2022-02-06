@@ -10,6 +10,9 @@ import basicAuth from 'express-basic-auth';
 import cors from 'cors';
 
 import paths from '$modules/Paths';
+
+import Exception from '$core/Exceptions/Exception';
+import SwaggerRoutes from '$core/Routes/Swagger';
 import SwaggerExtractor from '$core/Swagger/Extractor';
 import KernelRoutes from '$core/Routes/Kernel';
 import DependencyResolver from '$core/Dependency/DependencyResolver';
@@ -17,75 +20,68 @@ import DependencyMock from '$core/Dependency/DependencyMock';
 
 export default class App
 {
-    app: core.Express;
-    swaggerExtractor: SwaggerExtractor;
-    components: object;
+    private static _instance : App = null;
+    private app: core.Express;
     private _dependencyResolver: DependencyResolver;
+    private components: object;
 
-    constructor()
+    private constructor()
     {
         this.app = express();
 
         this._dependencyResolver = new DependencyResolver();
+    }
 
-        this.swaggerExtractor = new SwaggerExtractor();
+    public static instance() : App
+    {
+        if(App._instance == null) {
+            App._instance = new App();
+        }
+
+        return App._instance;
     }
 
     async bootstrap() : Promise<void>
     {
-        await this.setConfig();
+        this.setConfig();
 
-        await this.setBasicAuth();
+        this.setExceptionHandler();
 
-        await this.loadPlugins();
+        this.setBasicAuth();
+
+        this.loadPlugins();
 
         await this._dependencyResolver.bootstrap();
 
-        await this.loadComponentDefinitions();
+        this.loadComponentDefinitions();
 
-        await this.loadRoutes();
+        this.loadRoutes();
     }
 
-    async setConfig() : Promise<void>
+    setConfig() : void
     {
         express.static.mime.define({ 'application/javascript': ['vue'] });
 
         this.app.set('host', (process.env.HOST || '127.0.0.1'));
         this.app.set('port', (process.env.PORT || 8000));
 
-        // error handler
-        this.app.use(function (err, req, res, next)
-        {
-            const data : any = {};
-            const statusCode = err.statusCode || 500;
-
-            data.message = err.message || 'Internal Server Error';
-
-            if (process.env.NODE_ENV === 'development' && err.stack)
-            {
-                data.stack = err.stack;
-            }
-
-            if (statusCode >= 400)
-            {
-                console.error(err);
-            }
-
-            res.status(statusCode).json(data);
-        });
-
         process.on('SIGINT', this.quit);
         process.on('SIGTERM', this.quit);
     }
 
-    async setBasicAuth() : Promise<void>
+    setExceptionHandler() {
+        // TODO: check if exists a custom exception handler in app folder.
+        this.app.use(Exception.handler);
+    }
+
+    setBasicAuth() : void
     {
         const BASIC_AUTH_USER = process.env.BASIC_AUTH_USER;
         const BASIC_AUTH_PWD = process.env.BASIC_AUTH_PWD;
 
         if (BASIC_AUTH_USER && BASIC_AUTH_PWD)
         {
-            this.app.use(function (req, res, next)
+            this.app.use((req, res, next) =>
             {
                 res.setHeader('WWW-Authenticate', 'Basic realm="Restricted Area"')
                 next();
@@ -99,7 +95,7 @@ export default class App
         }
     }
 
-    async loadPlugins() : Promise<void>
+    loadPlugins() : void
     {
         this.app.use(cors());
         this.app.use(bodyParser.json());
@@ -114,7 +110,7 @@ export default class App
 
     async loadRoutes()
     {
-        const routes = await this.getRoutes();
+        const routes = this.getRoutes();
         this.registerRoutes(routes);
 
         // const mocks = await this.getMocks();
@@ -123,41 +119,42 @@ export default class App
 
     async registerRoutes(routes: any[])
     {
-        for (const idxRoute in routes)
+        for (const idxRoute of Object.keys(routes))
         {
             const route = routes[idxRoute];
 
-            console.log(route);
-
-            this.app[route.method](route.route, ...route.middlewares, route.controller);
+            this.app[route.method](route.path, ...route.middlewares, route.controller);
         }
     }
 
-    async getRoutes() : Promise<object[]>
+    getRoutes() : object[]
     {
-        const kernelRoutes = (new KernelRoutes(this._dependencyResolver))
-            .extractor(this.swaggerExtractor);
+        const swaggerRoutes = new SwaggerRoutes(paths.routes());
+        const kernelRoutes = (new KernelRoutes(swaggerRoutes))
+            .dependencyManager(this._dependencyResolver);
 
         return kernelRoutes.endpoints();
     }
 
     async getMocks() : Promise<object[]>
     {
-        const mockDependencyResolver = new DependencyMock(this.swaggerExtractor);
+        const swaggerRoutes = new SwaggerRoutes(paths.routes());
+        const swaggerExtractor = new SwaggerExtractor();
+        const mockDependencyResolver = new DependencyMock(swaggerExtractor);
 
-        const kernelRoutes = (new KernelRoutes(mockDependencyResolver))
-            .extractor(this.swaggerExtractor)
-            .prefix('/__mock');
+        const kernelRoutes = (new KernelRoutes(swaggerRoutes))
+            .prefix('/__mock')
+            .dependencyManager(mockDependencyResolver);
 
         return kernelRoutes.endpoints();
     }
 
-    async loadComponentDefinitions() : Promise<void>
+    loadComponentDefinitions() : void
     {
         const swaggerExtractor = new SwaggerExtractor();
         this.components = swaggerExtractor.getComponents();
 
-        for (const componentName in this.components)
+        for (const componentName of Object.keys(this.components))
         {
             const uri = `/__component/definition/${componentName}`;
             this.app.get(uri, async function (req, res)
@@ -175,23 +172,29 @@ export default class App
 
     listen() : void
     {
+        this.checkPermissionsInStorage();
         const self = this;
-        this.app.listen(this.app.get('port'), this.app.get('host'), function ()
+        this.app.listen(this.app.get('port'), this.app.get('host'), () =>
         {
-            fs.access(paths.db(), fs.constants.W_OK, function (err)
-            {
-                if (err)
-                {
-                    console.error("Write access to", paths.db(), "DENIED.");
-                    process.exit(1);
-                }
-            });
+            // tslint:disable-next-line:no-console
             console.log("Cronos is running at http://" + self.app.get('host') + ":" + self.app.get('port'));
+        });
+    }
+
+    checkPermissionsInStorage() : void
+    {
+        fs.access(paths.db(), fs.constants.W_OK, (err) =>
+        {
+            if (err)
+            {
+                throw new Error("Write access to " + paths.db() + " DENIED.");
+            }
         });
     }
 
     quit() : void
     {
+        // tslint:disable-next-line:no-console
         console.log("Exiting cronos");
         process.exit();
     }

@@ -8,10 +8,4 @@ export default class SmtpConfig extends DbModel
     port: string = null;
     secure: string = null;
     auth: object = { user: null, password: null };
-
-    constructor(_id = null)
-    {
-        super();
-        if (_id) { this._id = _id; }
-    }
 }
