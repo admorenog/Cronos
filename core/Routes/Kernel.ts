@@ -7,24 +7,24 @@ export default class Kernel
     _routes: Router;
     _prefix: string = "";
 
-    constructor(router : Router)
+    public constructor(router : Router)
     {
         this._routes = router;
     }
 
-    dependencyManager(dependencyManager: DependencyManager) : this
+    public dependencyManager(dependencyManager: DependencyManager) : this
     {
         this._dependencyManager = dependencyManager;
         return this;
     }
 
-    prefix(prefix : string) : this
+    public prefix(prefix : string) : this
     {
         this._prefix += prefix;
         return this;
     }
 
-    endpoints() : object[]
+    public endpoints() : object[]
     {
         const routes = this._routes.get();
 
@@ -33,19 +33,25 @@ export default class Kernel
         for (const idxRoute of Object.keys(routes))
         {
             const route = routes[idxRoute];
-            const middlewares = [];
-            for (const idx of Object.keys(route.middlewares))
-            {
-                const middlewareName = route.middlewares[idx];
-                middlewares.push(this._dependencyManager.get(middlewareName + "@handle"));
-            }
 
+            const middlewares = this.getMiddlewaresDependencies(route.middlewares);
             const controller = this._dependencyManager.get(route.controller);
-
             const path = this._prefix + route.path.replace(/\{(.*)\}/g, ":$1");
             const method = route.verb;
             endpoints.push({ method, path, middlewares, controller });
         }
         return endpoints;
+    }
+
+    private getMiddlewaresDependencies(middlewareNames: string[]) : any[]
+    {
+        const middlewares = [];
+        for (const idx of Object.keys(middlewareNames))
+        {
+            const middlewareName = middlewareNames[idx];
+            const middleware = this._dependencyManager.get(middlewareName + "@handle");
+            middlewares.push(middleware);
+        }
+        return middlewares;
     }
 }
