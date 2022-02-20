@@ -5,10 +5,9 @@ export default class JobController
 {
     async list(request: core.Request, response: core.Response)
     {
-        const job = new Job();
-        const listOfJobs = await job.getAll();
+        const jobs = await (new Job()).getAll();
 
-        response.end(JSON.stringify(listOfJobs));
+        response.end(JSON.stringify(jobs));
     }
 
     async store(request: core.Request, response: core.Response)

@@ -28,15 +28,25 @@ export default class DependencyResolver implements DependencyManager
 
 	public async loadDependencies(dependenciesPath: string) : Promise<void>
 	{
+        const jsFiles = this.getJsFilesFrom(dependenciesPath);
+
+        for (const jsFile of jsFiles)
+        {
+			await this.addFileAsDependency(dependenciesPath, jsFile.name)
+        }
+	}
+
+	private getJsFilesFrom(dependenciesPath : string) : fs.Dirent[] {
         const dependencyFiles = fs.readdirSync(dependenciesPath, {withFileTypes: true});
 
-        for (const idx in dependencyFiles)
-        {
-			if(dependencyFiles[idx].isFile()) {
-				const dependencyFile = dependencyFiles[idx].name;
-				await this.addFileAsDependency(dependenciesPath, dependencyFile)
-			}
-        }
+		return this.filterJsFiles(dependencyFiles);
+	}
+
+	private filterJsFiles(files : fs.Dirent[])  : fs.Dirent[] {
+		return files.filter(file => {
+			const extension = file.name.split('.').splice(-1)[0];
+			return file.isFile() && extension === "js";
+		});
 	}
 
 	private async addFileAsDependency(dependenciesPath: string, dependencyFile: string)

@@ -3,7 +3,7 @@ import Common from '$modules/common';
 
 void async function main()
 {
-    await Common.waitDebugger();
+    // await Common.waitDebugger();
 
     const app = App.instance();
 
